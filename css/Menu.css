@@ -1,0 +1,55 @@
+.nav,
+.nav ul {
+    list-style: none;
+}
+.nav {
+    float: left;
+}
+.nav > li {
+    float: left;
+}
+.nav li a {
+    display: block;
+    height: 2em;
+    line-height: 2em;
+    padding: 0 1.5em;
+    text-decoration: none;
+}
+.nav ul {
+    position: absolute;
+    display: none;
+    z-index: 999;
+}
+.nav ul li a {
+    width: 100px;
+}
+.nav li:hover ul {
+    display: block;
+}
+/* Main menu
+------------------------------------------*/
+.nav {
+    font-family: Arial;
+    font-size: 12px;
+    background: #41403b;
+}
+.nav > li > a {
+    color: #fff;
+    font-weight: bold;
+}
+.nav > li:hover > a {
+    background: #f09d28;
+    color: #000;
+}
+
+/* Submenu
+------------------------------------------*/
+.nav ul {
+    background: #f09d28;
+}
+.nav ul li a {
+    color: #000;
+}
+.nav ul li:hover a {
+    background: #ffc97c;
+}

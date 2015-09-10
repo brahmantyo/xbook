@@ -1,0 +1,114 @@
+<?php
+class Penjualan extends Application {
+    public $_startDate;
+    public $_endDate;
+    public $_cabang;
+    public $_direction;
+    public $_result_count;
+    
+    public function getPenjualanAll($group,$value){
+        $sql = "SELECT 
+                    dj.part,dj.asl AS asal,peg.nama AS nmsales,jl.nota,jl.tgl,jl.sales,dj.iditems,dj.qty,dj.hrgbeliidr2,dj.hrgbeliusd2,dj.hbeliidrr,dj.hbeliusdr,dj.hrgjualidr,dj.hrgjualusd,dj.disc,jl.bayar,jl.cur,jl.branchid,b.branch_name,dj.isowner
+                FROM djual dj
+                    LEFT JOIN jual jl ON (dj.id=jl.nota)
+                    LEFT JOIN branch b ON (jl.branchID=b.branch_id) 
+                    LEFT JOIN pegawai peg ON (jl.sales=peg.Id)";
+
+        if ($this->_cabang || ($this->_startDate && $this->_endDate) ){
+            $sql .= " WHERE ";
+            if($this->_cabang){
+                $sql .= " jl.branchid = ".$this->_cabang;
+                if($this->_startDate && $this->_endDate){
+                    $sql .= " AND jl.tgl >= '".$this->_startDate."' AND jl.tgl <= '".$this->_endDate."'"; 
+                }
+            } else if($this->_startDate && $this->_endDate){
+                $sql .= " jl.tgl >= '".$this->_startDate."' AND jl.tgl <= '".$this->_endDate."'"; 
+            }
+        }
+        switch ($group){
+            case 'part'      : $sql .= " AND dj.part = '".$value."' ORDER BY jl.tgl ".$this->_direction;break;
+            case 'tanggal'   : $sql .= " AND jl.tgl = '".$value."' ORDER BY jl.tgl ".$this->_direction;break;
+        }
+        //echo $sql;
+        return $sql;
+    }
+    
+    public function getPart(){
+        $sql = "SELECT DISTINCT part,nama FROM djual";
+        return $this->db->fetchAll($sql);
+    }
+    
+    public function getData($group,$value){
+        $result= $this->db->fetchAll($this->getPenjualanAll($group,$value));
+        
+        $this->_result_count += $this->db->_affected_rows;
+        return $result;
+    }
+    
+    public function getDataByGroup($group,$direction="DESC"){
+        $serial = array();
+        $this->_direction = $direction;
+        //echo $this->_direction;
+        switch ($group){
+        case'part' :    $parts = $this->getPart();
+                        foreach ($parts as $part){
+                            $result = $this->getData($group,$part['part']);
+                            if($result){
+                                $serial[$part['part'].'/'.$part['nama']]=$result;
+                                unset($result);
+                            }
+                        }
+                        break;
+        case 'tanggal': $tanggals = $this->getSemuaTanggalPenjualan($direction);
+                        foreach ($tanggals AS $tanggal) {
+                            $result = $this->getData($group,$tanggal['tgl']);
+                            if ($result) {
+                                $serial[$tanggal['tgl']]=$result;
+                                unset($result);
+                            }
+                        }
+                        break;
+        }
+        $serial = $this->role($serial);
+        return $serial;
+    }
+    public function getSemuaTanggalPenjualan($direction){
+        $sql = "SELECT tgl FROM jual ORDER BY tgl ".$direction;
+        return $this->db->fetchAll($sql);
+    }
+    public function getTanggalPenjualan(){
+        $sql = "SELECT MIN(tgl) AS awal, MAX(tgl) AS akhir FROM jual";
+        return $this->db->fetchOne($sql);
+    }
+    
+    private function role($data){
+        foreach($data as $partKey=>$part){
+            foreach($part as $listKey=>$list){
+                
+                //Roles for user Admin
+                if($_SESSION['aid']==1){
+                    $data[$partKey][$listKey]['hrgbeliidr'] = $list['hbeliidrr'];
+                    $data[$partKey][$listKey]['hrgbeliusd'] = $list['hbeliusdr'];                    
+                }
+                
+                //Roles for user Munis
+                elseif($_SESSION['aid']==2){
+                    $data[$partKey][$listKey]['hrgbeliidr'] = $list['hbeliidrr'];
+                    $data[$partKey][$listKey]['hrgbeliusd'] = $list['hbeliusdr'];
+                } 
+                
+                //Roles for user Agus
+                elseif($_SESSION['aid']==3 && $list['asal']!=768 && $list['isowner']!=1){
+                    $data[$partKey][$listKey]['hrgbeliidr'] = $list['hbeliidrr'];
+                    $data[$partKey][$listKey]['hrgbeliusd'] = $list['hbeliusdr'];
+                } 
+                
+                else {
+                    $data[$partKey][$listKey]['hrgbeliidr'] = $list['hrgbeliidr2'];
+                    $data[$partKey][$listKey]['hrgbeliusd'] = $list['hrgbeliusd2'];
+                }
+            }
+        }
+        return $data;
+    }
+}
