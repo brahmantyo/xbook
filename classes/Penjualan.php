@@ -35,7 +35,7 @@ class Penjualan extends Application {
             case 'tanggal'   : $sqlWhere .= " AND jl.tgl = '".$value."'";
                                $sqlOrder .=" ORDER BY jl.tgl ".$this->_direction;
                                break;
-            case 'sales'     : $sqlSelect .= ",bl.tgl AS tglbeli,dj.vaktifasi AS aktivasi,dj.vbonus AS bonus";
+            case 'sales'     : $sqlSelect .= ",bl.tgl AS tglbeli,dj.vaktifasi AS aktivasi,dj.vbonus AS bonus,dk.labaidr AS laba";
                                $sqlJoin .= " INNER JOIN dbeli db ON dj.iditems=db.iditems
                                              INNER JOIN beli bl ON db.id=bl.nota";
                                $sqlWhere .= " AND jl.validate='1' AND bl.validate = '1'";
