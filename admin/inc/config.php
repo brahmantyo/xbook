@@ -5,7 +5,7 @@ if(!isset($_SESSION)){
 
 // site domain name with http
 defined("SITE_URL")
-    || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/xbook/admin");
+    || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/admin");
 
 // directory separator
 defined("DS")
