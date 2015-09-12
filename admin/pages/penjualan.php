@@ -269,13 +269,14 @@
                     $tqty = 0;
                     $thrgbeli = 0;
                     $thrgjual = 0;
+                    $tbonus = 0;
                     $tlaba = 0;
                     $laba = 0;
 
                     foreach ($list as $data){
                         $no++;
                         $nmr++;
-                        $hrglaba=$data['qty']*($data['hrgjualidr']-$data['hrgbeliidr']-$data['bonus']);
+                        $hrglaba = $data['hrgjualidr']==0?0:($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr']-$data['bonus']));
                         $alertstyle=($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr']))<0?"style=\"background:pink;font-weight:bold\"":"";
                 ?>
                     <tr name="<?php echo $nmr.'_'.$no;?>" <?php echo $alertstyle;?>>
@@ -298,15 +299,18 @@
                         $qty = (int)$data['qty'];
                         $hrgbeliidr = (float)$data['hrgbeliidr'];
                         $hrgjualidr = (float)$data['hrgjualidr'];
-                        
+                        $bonus = (float)$data['bonus'];
+
                         $tqty += $qty;
                         $thrgbeli += $qty * $hrgbeliidr;
                         $thrgjual += $qty * $hrgjualidr;
-                        $tlaba += $qty*($hrgjualidr - $hrgbeliidr);
+                        $tbonus += $bonus;
+                        $tlaba += $qty*($hrgjualidr - $hrgbeliidr - $bonus);
                         $gtqty += $qty;
                         $gthrgbeli += $qty * $hrgbeliidr;
                         $gthrgjual += $qty * $hrgjualidr;
-                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr);
+                        $gtbonus += $bonus;
+                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr - $bonus);
                         flush();
                     }
                 ?>
@@ -315,7 +319,8 @@
                         <td class="text-right"><?php echo Helper::number($tqty);?></td>
                         <td colspan="2">&nbsp;</td>
                         <td class="text-right"><?php echo Helper::currency($thrgbeli);?></td>
-                        <td colspan="2">&nbsp;</td>
+                        <td >&nbsp;</td>
+                        <td class="text-right"><?php echo Helper::currency($tbonus);?></td>
                         <td class="text-right"><?php echo Helper::currency($thrgjual);?></td>
                         <td class="text-right"><?php echo Helper::currency($tlaba);?></td>
                         <?php if(strip_tags(isset($_POST['export']))){ ?><td>&nbsp;</td><?php }?>
@@ -348,6 +353,7 @@ $('#summary-lg').append('<table style="font-size: 12" class="table table-condens
         '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
         '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
         '<tr><td>Total Discount </td> <td><?php echo Helper::currency($gtdisc); ?></td></tr>'+
+        '<tr><td>Total Bonus </td> <td><?php echo Helper::currency($gtbonus); ?></td></tr>'+
         '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
         '</table>');
 $('#summary-sm').append('<table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">'+
@@ -356,6 +362,7 @@ $('#summary-sm').append('<table style="font-size: 12" class="table table-condens
         '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
         '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
         '<tr><td>Total Discount </td> <td><?php echo Helper::currency($gtdisc); ?></td></tr>'+
+        '<tr><td>Total Bonus </td> <td><?php echo Helper::currency($gtbonus); ?></td></tr>'+
         '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
         '</table>');
 </script>
