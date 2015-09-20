@@ -5,7 +5,7 @@ if(!isset($_SESSION)){
 
 // site domain name with http
 defined("SITE_URL")
-    || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/xbook/admin");
+    || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/admin");
 
 // directory separator
 defined("DS")
@@ -65,7 +65,7 @@ defined("DB_HOST")
 defined("DB_USER")
     || define("DB_USER", "root");
 defined("DB_PASSWORD")
-    || define("DB_PASSWORD", "");
+    || define("DB_PASSWORD", "viadolorosa~!@");
 defined("DB_NAME")
     || define("DB_NAME", "xbookdb");
     
