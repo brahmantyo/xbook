@@ -241,6 +241,7 @@
                 $gthrgbeli = 0;
                 $gthrgjual = 0;
                 $gtlaba = 0;
+                $gtbonus = 0;
                 $gtdisc = 0;
 
                 foreach ($listPenjualan as $key=> $list){
@@ -255,7 +256,6 @@
                         <th >Nama Brg</th>
                         <th >Serial Number</th>
                         <th style="width: 10">Qty</th>
-                        <th style="width: 60">Tgl.Beli</th>
                         <th style="width: 60">Tgl.Jual</th>
                         <th style="width: 60">Sub Total Hrg Beli MD<br/>(IDR)</th>
                         <th style="width: 60">Aktivasi</th>
@@ -286,7 +286,6 @@
                         <td><?php echo $data['nmbarang'];?></td>
                         <td><?php echo $data['iditems'];?></td>
                         <td class="text-right"><?php echo Helper::number($data['qty']);?></td>
-                        <td class="text-right"><?php echo Helper::dateFromMySqlSystem($data['tglbeli']);?></td>
                         <td class="text-right"><?php echo Helper::dateFromMySqlSystem($data['tgl']);?></td>
                         <td class="text-right"><?php echo Helper::currency($data['qty']*$data['hrgbeliidr']);?></td>
                         <td class="text-right"><?php echo Helper::currency($data['aktivasi']);?></td>
