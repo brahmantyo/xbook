@@ -27,7 +27,7 @@ class Penjualan extends Application {
                 $sqlWhere .= " jl.tgl >= '".$this->_startDate."' AND jl.tgl <= '".$this->_endDate."'"; 
             }
         }
-        $sqlOrder = "";
+        $sqlOrder = " ORDER BY jl.nota,dj.hrgjualidr DESC";
         switch ($group){
             case 'part'      : $sqlWhere .= " AND dj.part = '".$value."'";
                                $sqlOrder .=" ORDER BY jl.tgl ".$this->_direction;
@@ -39,9 +39,10 @@ class Penjualan extends Application {
                                /*$sqlJoin .= " INNER JOIN dbeli db ON dj.iditems=db.iditems
                                              INNER JOIN beli bl ON db.id=bl.nota";*/
                                $sqlWhere .= " AND jl.validate='1'";
-                               $sqlOrder .=" ORDER BY jl.sales ".$this->_direction;
+                               $sqlOrder .=", jl.sales ".$this->_direction;
                                break;
         }
+
         $sql = $sqlSelect.$sqlFrom.$sqlJoin.$sqlWhere.$sqlOrder;
         //echo $sql;exit();
         return $sql;
