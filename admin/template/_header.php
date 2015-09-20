@@ -24,6 +24,9 @@
     $objCashFlow = new CashFlow();
     $objCashFlow->getTanggal();
 
+    //Biaya Operasional
+    $objBiayaOperasional = new BiayaOperasional();
+    $objBiayaOperasional->getTanggal();
 
     if(isset($_GET['detailinvoice'])){
         $noinvoice = $_GET['detailinvoice'];
@@ -70,13 +73,20 @@
                 $bank=$objForm->getPost('bank');
                 $objCashFlow->_startDate = Helper::dateToMySqlSystem($objForm->getPost('tglawalcashflow'));
                 $objCashFlow->_endDate = Helper::dateToMySqlSystem($objForm->getPost('tglakhircashflow'));
-                //$objCashFlow->_cabang = $objForm->getPost('dafcabang');
+                $objCashFlow->_cabang = $objForm->getPost('dafcabang');
                 if(!empty($bank)){
                     $listCashFlow = $objCashFlow->getCashFlowByBank($bank);
                 } else { 
                     $listCashFlow = $objCashFlow->getCashFlow();
                 }
                 $nmcabang = $objBank->getNama($objForm->getPost("bank"));
+                break;
+            case 'biayaoperasional' :
+                $objBiayaOperasional->_startDate = Helper::dateToMySqlSystem($objForm->getPost('tglawalcashflow'));
+                $objBiayaOperasional->_endDate = Helper::dateToMySqlSystem($objForm->getPost('tglakhircashflow'));
+                $objBiayaOperasional->_cabang = $objForm->getPost('dafcabang');
+                $listBiayaOperasional = $objBiayaOperasional->getBiayaOperasional();
+                $nmcabang = $objCabang->getNama($objForm->getPost("dafcabang"))?:'Semua Cabang';
                 break;
         }
         $money = new Money();
@@ -246,20 +256,19 @@
                             <form action="./?page=cashflow" method="post" id="cashflow">
                             <input type="hidden" name="dafcabang" value="cashflow" />
                             <input type="hidden" name="form" value="cashflow" />
-<!--                        <div class="form-group">
+                            <!-- <div class="form-group">
                                 <label for="cabang">Pilih Lokasi</label>
                                 <select id="dafcabang" name="dafcabang" class="form-control">
                                     <option value="10000" <?php echo $objForm->getPost("dafcabang")==0?"selected":"";?>>-- Tampilkan Semua --</option>
-                                    <option value="0" <?php echo $objForm->getPost("dafcabang")==0?"selected":"";?>>-- Transaksi Bank --</option>
                                     <?php foreach ($cabang as $cab) { ?>
                                     <option value="<?php echo $cab['branch_id'];?>" <?php echo $cab['branch_id']==$objForm->getPost("dafcabang")?"selected":"";?> ><?php echo $cab['branch_name'];?></option>
                                     <?php } ?>
                                 </select>
-                            </div>-->
+                            </div> -->
                             <div class="form-group">
                                 <label for="bank">Pilih Rekening</label>
                                 <select id="bank" name="bank" class="form-control">
-                                    <option value="0" <?php echo $objForm->getPost("bank")==0?"selected":"";?>>-- Semua Cabang --</option>
+                                    <option value="0" <?php echo $objForm->getPost("bank")==0?"selected":"";?>>-- Semua Rekening --</option>
                                     <?php foreach ($listBank as $bank) { ?>
                                     <option value="<?php echo $bank['norek'];?>" <?php echo $bank['norek']==$objForm->getPost("bank")?"selected":"";?> ><?php echo $bank['bank'];?>-<?php echo $bank['an'];?></option>
                                     <?php } ?>
@@ -276,6 +285,47 @@
                             <div class="form-group">
                                 <label for="tglakhircashflow">Tanggal Akhir</label>
                                 <input id="tglakhircashflow" name="tglakhircashflow" type="text" class="form-control datepicker" value="<?php echo Helper::dateFromMySqlSystem($objCashFlow->_endDate); ?>" />
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="export" value="">Export to Excel
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Tampilkan</button>
+                            </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Biaya Operasional -->
+                    <div class="panel text-center">
+                        <div class="panel-heading panel-heading-custom" style="cursor: pointer">
+                            <div class="panel-title" data-toggle="collapse" data-parent="#accordion" data-target="#BiayaOperasional">Biaya Operasional</div>
+                        </div>
+                        <div id="BiayaOperasional" class="panel-collapse collapse">
+                            <div class="panel-body">
+                            <form action="./?page=biayaoperasional" method="post" id="biayaoperasional">
+                            <input type="hidden" name="form" value="biayaoperasional" />
+                            <div class="form-group">
+                                <label for="cabang">Pilih Lokasi</label>
+                                <select id="dafcabang" name="dafcabang" class="form-control">
+                                    <option value="10000" <?php echo $objForm->getPost("dafcabang")==0?"selected":"";?>>-- Tampilkan Semua --</option>
+                                    <?php foreach ($cabang as $cab) { ?>
+                                    <option value="<?php echo $cab['branch_id'];?>" <?php echo $cab['branch_id']==$objForm->getPost("dafcabang")?"selected":"";?> ><?php echo $cab['branch_name'];?></option>
+                                    <?php } ?>
+                                </select>
+                            </div>
+                            <div class="alert alert-danger alert-dismissable" id="alertBiayaOperasional">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                                <strong>&nbsp;</strong>
+                            </div>
+                            <div class="form-group">
+                                <label for="tglawalbo">Tanggal Awal</label>
+                                <input id="tglawalbo" name="tglawalcashflow" type="text" class="form-control datepicker" value="<?php echo Helper::dateFromMySqlSystem($objBiayaOperasional->_startDate); ?>" />
+                            </div>
+                            <div class="form-group">
+                                <label for="tglakhirbo">Tanggal Akhir</label>
+                                <input id="tglakhirbo" name="tglakhircashflow" type="text" class="form-control datepicker" value="<?php echo Helper::dateFromMySqlSystem($objBiayaOperasional->_endDate); ?>" />
                             </div>
                             <div class="checkbox">
                                 <label>
@@ -510,4 +560,44 @@ $('#tglakhirrl')
         }
         $('#tglakhirrl').datepicker('hide');
     });
+
+//Biaya Operasional
+$('#alertBiayaOperasional').hide();
+$('#tglawalbo')
+    .datepicker({ format: "dd-mm-yyyy" })
+    .on('changeDate', function(ev){
+        var tEnd = new Array();
+        if($('#tglakhirbo').val()){
+            tEnd = ($('#tglakhirbo').val()).split("-");
+        }
+        tglAkhir = new Date(tEnd[2]+"-"+tEnd[1]+"-"+tEnd[0]);
+        if (ev.date.valueOf() > endDate.valueOf()){
+            $('#alert').show().find('strong').text('Tanggal tidak boleh melebihi dari hari ini');
+        } else if (ev.date.valueOf() > tglAkhir.valueOf()) {
+            $('#alert').show().find('strong').text('Tanggal awal tidak boleh melebihi tanggal akhir');
+        } else {
+            $('#alert').hide();
+            startDate = new Date(ev.date);
+        }
+        $('#tglawalbo').datepicker('hide');
+     });
+$('#tglakhirbo')
+    .datepicker({ format: "dd-mm-yyyy" })
+    .on('changeDate', function(ev){
+        var tStart = new Array();
+        if($('#tglawalbo').val()){
+            tStart = ($('#tglawalbo').val()).split("-");
+        }
+        tglAwal = new Date(tStart[2]+"-"+tStart[1]+"-"+tStart[0]);
+        if (ev.date.valueOf() < startDate.valueOf()){
+            $('#alert').show().find('strong').text('The end date must be after the start date.');
+        } else if(ev.date.valueOf() < tglAwal.valueOf()){
+            $('#alert').show().find('strong').text('Tanggal akhir tidak sebelum tanggal awal');
+        } else {
+            $('#alert').hide();
+            endDate = new Date(ev.date);
+        }
+        $('#tglakhirbo').datepicker('hide');
+    });
+
 </script>
