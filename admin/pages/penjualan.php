@@ -316,7 +316,7 @@
                     <tr style="font-weight: bold">
                         <td colspan="5" align="right">Total &nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td class="text-right"><?php echo Helper::number($tqty);?></td>
-                        <td colspan="2">&nbsp;</td>
+                        <td >&nbsp;</td>
                         <td class="text-right"><?php echo Helper::currency($thrgbeli);?></td>
                         <td >&nbsp;</td>
                         <td class="text-right"><?php echo Helper::currency($tbonus);?></td>
