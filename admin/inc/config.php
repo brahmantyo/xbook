@@ -6,6 +6,8 @@ if(!isset($_SESSION)){
 // site domain name with http
 defined("SITE_URL")
     || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/admin");
+//    || define("SITE_URL","http://".$_SERVER['SERVER_NAME']."/xbook/admin");
+
 
 // directory separator
 defined("DS")
@@ -63,9 +65,11 @@ set_include_path(implode(PATH_SEPARATOR, array(
 defined("DB_HOST")
     || define("DB_HOST", "localhost");
 defined("DB_USER")
-    || define("DB_USER", "root");
+    || define("DB_USER", "ataicoe");
+//    || define("DB_USER", "root");
 defined("DB_PASSWORD")
     || define("DB_PASSWORD", "viadolorosa~!@");
+//    || define("DB_PASSWORD", "");
 defined("DB_NAME")
     || define("DB_NAME", "xbookdb");
     

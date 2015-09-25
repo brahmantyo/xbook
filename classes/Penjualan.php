@@ -30,10 +30,10 @@ class Penjualan extends Application {
         $sqlOrder = " ORDER BY jl.nota,dj.hrgjualidr DESC";
         switch ($group){
             case 'part'      : $sqlWhere .= " AND dj.part = '".$value."'";
-                               $sqlOrder .=" ORDER BY jl.tgl ".$this->_direction;
+                               $sqlOrder .=" , jl.tgl ".$this->_direction;
                                break;
             case 'tanggal'   : $sqlWhere .= " AND jl.tgl = '".$value."'";
-                               $sqlOrder .=" ORDER BY jl.tgl ".$this->_direction;
+                               $sqlOrder .=" , jl.tgl ".$this->_direction;
                                break;
             case 'sales'     : $sqlSelect .= ",dj.vaktifasi AS aktivasi,dj.vbonus AS bonus";
                                /*$sqlJoin .= " INNER JOIN dbeli db ON dj.iditems=db.iditems
