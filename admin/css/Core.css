@@ -69,3 +69,12 @@ a {
     position: fixed;
     top: 30%;
 }
+.ganjil {
+    background-color: #eecc99;
+}
+.genap {
+    background-color: #ffeebb;
+}
+.header,.footer {
+    background-color: #ccbb88;
+}

@@ -1,13 +1,25 @@
 
 <?php require_once("_header.php"); ?>
 <?php 
+
+$nmr=0;
+$trans=0;
+$nota = '';
+$gtqty = 0;
+$gthrgbeli = 0;
+$gthrgjual = 0;
+$gtlaba = 0;
+$gtbonus = 0;
+$gtdisc = 0;
+
+
     if($objForm->isPost('dafcabang')){
         if($objPenjualan->_result_count){
 ?>
 <div style="height: 260;" class="visible-lg">&nbsp;</div>
 <div id="datalist" align="center" class="col-sm-12">
-    <div id="summary-lg" class="well table-responsive visible-lg" >&nbsp;</div>
-    <div id="summary-sm" class="well table-responsive visible-sm visible-md visible-xs" >&nbsp;</div>
+    <div id="summary-lg" class="alert table-responsive visible-lg" >&nbsp;</div>
+    <div id="summary-sm" class="alert table-responsive visible-sm visible-md visible-xs" >&nbsp;</div>
 <?php   if($group == "part"){ ?>
     <table class="table table-condensed table-striped table-bordered table-hover no-margin">
         <tbody>
@@ -19,18 +31,19 @@
                 </th>
             </tr>
             <?php
-                $nmr=0;
+/*                $nmr=0;
                 $gtqty = 0;
                 $gthrgbeli = 0;
                 $gthrgjual = 0;
                 $gtdisc = 0;
-                $gtlaba = 0;
+                $gtlaba = 0;*/
 
                 foreach ($listPenjualan as $key=> $part){
             ?>
             <tr><td colspan="15" height="50"><b>Part.No/Nama :&nbsp;<?php echo $key; ?></b></td></tr>
             <tr><td><div class="table-responsive">
-                <table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">
+                <table style="font-size: 12" class="table table-condensed table-bordered table-hover no-margin">
+                    <thead class="header">
                     <tr>
                         <th style="width: 20">&nbsp;&nbsp;&nbsp;&nbsp;</th>
                         <th style="width: 20">No.</th>
@@ -48,19 +61,54 @@
                         <th style="width: 60">Disc</th>
                         <th style="width: 20">Bayar</th>
                     </tr>
+                    </thead>
+                    <tbody>
                 <?php             
                     $no=0;
                     $tqty = 0;
                     $thrgbeli = 0;
                     $thrgjual = 0;
+                    $tbonus = 0;
                     $tdisc = 0;
-                    $laba = 0;
+                    $tlaba = 0;
+                    $background = 'ganjil';
 
                     foreach ($part as $data){
+                        // $no++;
+                        // $nmr++;
+
                         $no++;
                         $nmr++;
+
+                        $background = $no%2?'genap':'ganjil';
+                        
+
+                        $qty = (int)$data['qty'];
+                        $hrgjualidr = (float)$data['hrgjualidr'];
+                        $hrgjualusd = (float)$data['hrgjualusd'];
+                        $hrgbeliidr = $hrgjualidr==0?0:(float)$data['hrgbeliidr'];
+                        $hrgbeliusd = $hrgjualusd==0?0:(float)$data['hrgbeliusd'];
+                        $bonus = (float)$data['bonus'];
+                        $disc = (float)$data['disc'];
+                        $laba = $qty * ($hrgjualidr - $hrgbeliidr - $disc) - $bonus;
+
+                        $tqty += $qty;
+                        $thrgbeli += $qty*$hrgbeliidr;
+                        $thrgjual += $qty*$hrgjualidr;
+                        $tbonus += $bonus;
+                        $tdisc += $qty*$disc;
+                        $tlaba += $laba;
+
+                        $gtqty += $qty;
+                        $gthrgbeli += $qty*$hrgbeliidr;
+                        $gthrgjual += $qty*$hrgjualidr;
+                        $gtdisc += $qty*$disc;
+                        $gtbonus += $bonus;
+                        $gtlaba += $laba;
+
+
                 ?>
-                    <tr>
+                    <tr class="<?php echo $background;?>">
                         <td><?php echo $nmr; ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td><?php echo $no;?></td>
                         <td><?php echo Helper::dateFromMySqlSystem($data['tgl']);?></td>
@@ -69,16 +117,16 @@
                         <td><?php echo $data['branch_name'];?></td>
                         <td><?php echo $data['nmsales'];?></td>
                         <td class="text-center"><?php echo $data['cur'];?></td>
-                        <td class="text-right"><?php echo Helper::number($data['qty']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgbeliidr']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgbeliusd']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgjualidr']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgjualusd']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['disc']);?></td>
+                        <td class="text-right"><?php echo Helper::number($qty);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgbeliidr);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgbeliusd);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgjualidr);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgjualusd);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$disc);?></td>
                         <td><?php echo $data['bayar'];?></td>
                     </tr>
                 <?php 
-                        $qty = (int)$data['qty'];
+/*                        $qty = (int)$data['qty'];
                         $hrgbeliidr = (float)$data['hrgbeliidr'];
                         $hrgjualidr = (float)$data['hrgjualidr'];
                         $disc = (float)$data['disc'];
@@ -92,10 +140,12 @@
                         $gthrgbeli += $qty * $hrgbeliidr;
                         $gthrgjual += $qty * $hrgjualidr;
                         $gtdisc += $qty * $disc;
-                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr - $disc);
+                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr - $disc);*/
                         flush();
                     }
                 ?>
+                    </tbody>
+                    <tfoot class="footer">
                     <tr>
                         <td colspan="8" align="right">Total &nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td class="text-right"><?php echo Helper::number($tqty);?></td>
@@ -108,8 +158,9 @@
                     </tr>
                     <tr>
                         <td colspan="9" class="text-right">Laba &nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td colspan="6" class="no-margin"><?php echo Helper::currency($laba);?></td>
+                        <td colspan="6" class="no-margin"><?php echo Helper::currency($tlaba);?></td>
                     </tr>
+                    </tfoot>
                 </table>
                     </div></td>
             </tr>
@@ -118,7 +169,7 @@
     </table>
 <?php   } else if($group=="tanggal"){ ?>
     <table class="table table-condensed table-striped table-bordered table-hover no-margin">
-        <tbody>
+        <thead>
             <tr>
                 <th colspan="15" style="text-align: center; font-weight: bold">
                     <div><h3>Laporan Penjualan Berdasarkan Tanggal</h3></div>
@@ -127,49 +178,86 @@
                 </th>
             </tr>
             <?php
-                $nmr=0;
+/*                $nmr=0;
                 $gtqty = 0;
                 $gthrgbeli = 0;
                 $gthrgjual = 0;
                 $gtdisc = 0;
-                $gtlaba = 0;
+                $gtlaba = 0;*/
 
                 foreach ($listPenjualan as $key=> $list){
             ?>
             <tr><td colspan="15" height="50"><b>Tanggal :&nbsp;<?php echo Helper::dateFromMySqlSystem($key); ?></b></td></tr>
+        </thead>
+        <tbody>
+
             <tr><td><div class="table-responsive">
-                <table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">
+                <table style="font-size: 12" class="table table-condensed table-bordered table-hover no-margin">
+                    <thead  class="header">
                     <tr>
-                        <th style="width: 20">&nbsp;&nbsp;&nbsp;&nbsp;</th>
-                        <th style="width: 20">No.</th>
-                        <th style="width: 20">Invoice #</th>
-                        <th style="width: 30">Part</th>
-                        <th style="width: 50">Serial Number</th>
+                        <th >&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th >No.</th>
+                        <th >Invoice #</th>
+                        <th >Part</th>
+                        <th >Serial Number</th>
                         <th >Nama Barang</th>
-                        <th style="width: 50">Branch</th>
-                        <th style="width: 50">Nama Sales</th>
-                        <th style="width: 10">Curr</th>
-                        <th style="width: 5">Qty</th>
-                        <th style="width: 40">Hrg Beli (IDR)</th>
-                        <th style="width: 20">Hrg Beli (USD)</th>
-                        <th style="width: 40">Hrg Jual (IDR)</th>
-                        <th style="width: 20">Hrg Jual (USD)</th>
-                        <th style="width: 40">Disc</th>
-                        <th style="width: 35">Bayar</th>
+                        <th >Branch</th>
+                        <th >Nama Sales</th>
+                        <th >Curr</th>
+                        <th >Qty</th>
+                        <th >Hrg Beli (IDR)</th>
+                        <th >Hrg Beli (USD)</th>
+                        <th >Hrg Jual (IDR)</th>
+                        <th >Hrg Jual (USD)</th>
+                        <th >Bonus</th>
+                        <th >Disc</th>
+                        <th >Bayar</th>
                     </tr>
+                    </thead>
+                    <tbody>
                 <?php             
                     $no=0;
                     $tqty = 0;
                     $thrgbeli = 0;
                     $thrgjual = 0;
+                    $tbonus = 0;
                     $tdisc = 0;
-                    $laba = 0;
+                    $tlaba = 0;
+                    $background = 'genap';
 
                     foreach ($list as $data){
                         $no++;
                         $nmr++;
+                        if($nota!=$data['nota']){
+                            $trans++;
+                            $nota = $data['nota'];
+                            $background = $background=='genap'?'ganjil':'genap';
+                        }
+
+                        $qty = (int)$data['qty'];
+                        $hrgjualidr = (float)$data['hrgjualidr'];
+                        $hrgjualusd = (float)$data['hrgjualusd'];
+                        $hrgbeliidr = $hrgjualidr==0?0:(float)$data['hrgbeliidr'];
+                        $hrgbeliusd = $hrgjualusd==0?0:(float)$data['hrgbeliusd'];
+                        $bonus = (float)$data['bonus'];
+                        $disc = (float)$data['disc'];
+                        $laba = $qty * ($hrgjualidr - $hrgbeliidr - $disc) - $bonus;
+
+                        $tqty += $qty;
+                        $thrgbeli += $qty*$hrgbeliidr;
+                        $thrgjual += $qty*$hrgjualidr;
+                        $tbonus += $bonus;
+                        $tdisc += $qty*$disc;
+                        $tlaba += $laba;
+
+                        $gtqty += $qty;
+                        $gthrgbeli += $qty*$hrgbeliidr;
+                        $gthrgjual += $qty*$hrgjualidr;
+                        $gtdisc += $qty*$disc;
+                        $gtbonus += $bonus;
+                        $gtlaba += $laba;
                 ?>
-                    <tr>
+                    <tr class="<?php echo $background; ?>" >
                         <td><?php echo $nmr; ?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
                         <td><?php echo $no;?></td>
                         <td><?php echo $data['nota'];?></td>
@@ -179,47 +267,34 @@
                         <td><?php echo $data['branch_name'];?></td>
                         <td><?php echo $data['nmsales'];?></td>
                         <td class="text-center"><?php echo $data['cur'];?></td>
-                        <td class="text-right"><?php echo Helper::number($data['qty']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgbeliidr']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgbeliusd']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgjualidr']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['hrgjualusd']);?></td>
-                        <td class="text-right"><?php echo Helper::currency($data['disc']);?></td>
+                        <td class="text-right"><?php echo Helper::number($qty);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgbeliidr);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgbeliusd);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgjualidr);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$hrgjualusd);?></td>
+                        <td class="text-right"><?php echo Helper::currency($bonus);?></td>
+                        <td class="text-right"><?php echo Helper::currency($qty*$disc);?></td>
                         <td><?php echo $data['bayar'];?></td>
                     </tr>
-                <?php
-                        $qty = (int)$data['qty'];
-                        $hrgbeliidr = (float)$data['hrgbeliidr'];
-                        $hrgjualidr = (float)$data['hrgjualidr'];
-                        $disc = (float)$data['disc'];
-                        
-                        $tqty += $qty;
-                        $thrgbeli += $qty * $hrgbeliidr;
-                        $thrgjual += $qty * $hrgjualidr;
-                        $tdisc += $qty * $disc;
-                        $laba = $thrgjual - $thrgbeli - $tdisc;
-                        $gtqty += $qty;
-                        $gthrgbeli += $qty * $hrgbeliidr;
-                        $gthrgjual += $qty * $hrgjualidr;
-                        $gtdisc += $qty * $disc;
-                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr - $disc);
-                        flush();
-                    }
-                ?>
+                <?php  } ?>
+                    </tbody>
+                    <tfoot  class="footer">
                     <tr>
-                        <td colspan="9" align="right">Total &nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td class="text-right"><?php echo Helper::number($tqty);?></td>
-                        <td class="text-right"><?php echo Helper::currency($thrgbeli);?></td>
-                        <td></td>
-                        <td class="text-right"><?php echo Helper::currency($thrgjual);?></td>
-                        <td></td>
-                        <td class="text-right"><?php echo Helper::currency($tdisc);?></td>
-                        <td>&nbsp;</td>
+                        <th colspan="9" align="right">Total &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th class="text-right"><?php echo Helper::number($tqty);?></th>
+                        <th class="text-right"><?php echo Helper::currency($thrgbeli);?></th>
+                        <th></th>
+                        <th class="text-right"><?php echo Helper::currency($thrgjual);?></th>
+                        <th></th>
+                        <th class="text-right"><?php echo Helper::currency($tbonus);?></th>
+                        <th class="text-right"><?php echo Helper::currency($tdisc);?></th>
+                        <th></th>
                     </tr>
                     <tr>
-                        <td colspan="9" class="text-right">Laba &nbsp;&nbsp;&nbsp;&nbsp;</td>
-                        <td colspan="7" class="no-margin"><?php echo Helper::currency($laba);?></td>
+                        <th colspan="9" class="text-right">Laba &nbsp;&nbsp;&nbsp;&nbsp;</th>
+                        <th colspan="8" class="no-margin"><?php echo Helper::currency($tlaba);?></th>
                     </tr>
+                    </tfoot>
                 </table>
                     </div></td>
             </tr>
@@ -236,14 +311,6 @@
                 </th>
             </tr>
             <?php
-                $nmr=0;
-                $gtqty = 0;
-                $gthrgbeli = 0;
-                $gthrgjual = 0;
-                $gtlaba = 0;
-                $gtbonus = 0;
-                $gtdisc = 0;
-
                 foreach ($listPenjualan as $key=> $list){
             ?>
             <tr><td height="50"><b>Sales :&nbsp;<?php echo $key; ?></b></td></tr>
@@ -276,8 +343,8 @@
                     foreach ($list as $data){
                         $no++;
                         $nmr++;
-                        $hrglaba = $data['hrgjualidr']==0?0:($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr']-$data['bonus']));
-                        $alertstyle=($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr']))<0?"style=\"background:pink;font-weight:bold\"":"";
+                        $hrglaba = $data['hrgjualidr']==0?0:($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr'])-$data['bonus']);
+                        $alertstyle=($data['qty']*($data['hrgjualidr']-$data['hrgbeliidr'])-$data['bonus'])<0?"style=\"background:pink;font-weight:bold\"":"";
                 ?>
                     <tr name="<?php echo $nmr.'_'.$no;?>" <?php echo $alertstyle;?>>
                         <td><?php echo $nmr;?>&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -304,12 +371,12 @@
                         $thrgbeli += $qty * $hrgbeliidr;
                         $thrgjual += $qty * $hrgjualidr;
                         $tbonus += $bonus;
-                        $tlaba += $qty*($hrgjualidr - $hrgbeliidr - $bonus);
+                        $tlaba += $qty*($hrgjualidr - $hrgbeliidr)- $bonus;
                         $gtqty += $qty;
                         $gthrgbeli += $qty * $hrgbeliidr;
                         $gthrgjual += $qty * $hrgjualidr;
                         $gtbonus += $bonus;
-                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr - $bonus);
+                        $gtlaba += $qty * ($hrgjualidr - $hrgbeliidr) - $bonus;
                         flush();
                     }
                 ?>
@@ -345,9 +412,11 @@
 
 <?php } ?>
 
+<?php 
+    if($group=='part'){
+?>
 <script type="text/javascript">
 $('#summary-lg').append('<table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">'+
-        '<tr><td width="20%">Jumlah Transaksi </td><td><?php echo Helper::number($nmr); ?></td></tr>'+
         '<tr><td width="20%">Total Qty </td><td><?php echo Helper::number($gtqty); ?></td></tr>'+        
         '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
         '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
@@ -356,7 +425,6 @@ $('#summary-lg').append('<table style="font-size: 12" class="table table-condens
         '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
         '</table>');
 $('#summary-sm').append('<table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">'+
-        '<tr><td width="20%">Jumlah Transaksi </td><td><?php echo Helper::number($nmr); ?></td></tr>'+
         '<tr><td width="20%">Total Qty </td><td><?php echo Helper::number($gtqty); ?></td></tr>'+        
         '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
         '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
@@ -365,4 +433,28 @@ $('#summary-sm').append('<table style="font-size: 12" class="table table-condens
         '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
         '</table>');
 </script>
+<?php 
+    }else{
+?>
+<script type="text/javascript">
+$('#summary-lg').append('<table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">'+
+        '<tr><td width="20%">Jumlah Transaksi </td><td><?php echo Helper::number($trans); ?></td></tr>'+
+        '<tr><td width="20%">Total Qty </td><td><?php echo Helper::number($gtqty); ?></td></tr>'+        
+        '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
+        '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
+        '<tr><td>Total Discount </td> <td><?php echo Helper::currency($gtdisc); ?></td></tr>'+
+        '<tr><td>Total Bonus </td> <td><?php echo Helper::currency($gtbonus); ?></td></tr>'+
+        '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
+        '</table>');
+$('#summary-sm').append('<table style="font-size: 12" class="table table-condensed table-striped table-bordered table-hover no-margin">'+
+        '<tr><td width="20%">Jumlah Transaksi </td><td><?php echo Helper::number($trans); ?></td></tr>'+
+        '<tr><td width="20%">Total Qty </td><td><?php echo Helper::number($gtqty); ?></td></tr>'+        
+        '<tr><td>Total Hrg.Beli </td> <td><?php echo Helper::currency($gthrgbeli); ?></td></tr>'+
+        '<tr><td>Total Hrg.Jual </td> <td><?php echo Helper::currency($gthrgjual); ?></td></tr>'+
+        '<tr><td>Total Discount </td> <td><?php echo Helper::currency($gtdisc); ?></td></tr>'+
+        '<tr><td>Total Bonus </td> <td><?php echo Helper::currency($gtbonus); ?></td></tr>'+
+        '<tr><td>Total Laba/Rugi </td> <td><?php echo Helper::currency($gtlaba);?></td></tr>'+
+        '</table>');
+</script>
+<?php } ?>
 <?php require_once("_footer.php"); ?>

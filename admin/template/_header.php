@@ -44,8 +44,8 @@
                 //$tglAwal = Helper::dateToMySqlSystem($objForm->getPost('tglawaljual'));
                 //$tglAkhir = Helper::dateToMySqlSystem($objForm->getPost('tglakhirjual')); 
                 $group = $objForm->getPost("group_by");
-                $dir=$objForm->getPost("direction");
-                $direction = isset($_POST['direction'])?$dir:"DESC";
+                //$dir=$objForm->getPost("direction");
+                $direction = $objForm->getPost("direction")?:"DESC";
                 $objPenjualan->_cabang = $objForm->getPost('dafcabang');
                 $objPenjualan->_startDate = Helper::dateToMySqlSystem($objForm->getPost("tglawaljual"));
                 $objPenjualan->_endDate = Helper::dateToMySqlSystem($objForm->getPost("tglakhirjual"));
